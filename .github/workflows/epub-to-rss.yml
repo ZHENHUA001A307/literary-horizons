@@ -2,7 +2,7 @@ name: EPUB to RSS
 
 on:
   schedule:
-    - cron: '0 0 * * 3,6'
+    - cron: '0 0 * * 6'
   workflow_dispatch:
 
 concurrency:
@@ -64,6 +64,10 @@ jobs:
               exit(0)
           with open(MANIFEST, encoding='utf-8-sig') as f:
               items = json.load(f)
+
+          if not items:
+              print('Manifest is empty, skip.')
+              exit(0)
 
           # find next
           next_item = None
@@ -185,7 +189,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add feed.xml progress.epub.json image/
+          git add -A
           git commit -m "EPUB RSS update: $(date)" || exit 0
           git pull --rebase -X theirs origin main || git rebase --abort
           git push
